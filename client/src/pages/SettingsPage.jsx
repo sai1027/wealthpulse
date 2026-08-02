@@ -15,10 +15,16 @@ export default function SettingsPage({ categories, onRefresh }) {
   const [showAddField, setShowAddField] = useState(false);
   const [newFieldLabel, setNewFieldLabel] = useState('');
   const [newFieldType, setNewFieldType] = useState('text');
+  const [newFieldSensitive, setNewFieldSensitive] = useState(false);
   const [showPasswordChange, setShowPasswordChange] = useState(false);
   const [currentPwd, setCurrentPwd] = useState('');
   const [newPwd, setNewPwd] = useState('');
   const [pwdMsg, setPwdMsg] = useState('');
+  const [localCats, setLocalCats] = useState(categories);
+  const [editingFieldId, setEditingFieldId] = useState(null);
+  const [editFieldLabel, setEditFieldLabel] = useState('');
+  const [editFieldType, setEditFieldType] = useState('text');
+  const [editFieldSensitive, setEditFieldSensitive] = useState(false);
 
   useEffect(() => {
     if (selectedCat) {
@@ -30,6 +36,7 @@ export default function SettingsPage({ categories, onRefresh }) {
     if (categories.length > 0 && !selectedCat) {
       setSelectedCat(categories[0]);
     }
+    setLocalCats(categories);
   }, [categories]);
 
   const loadFields = async () => {
@@ -65,10 +72,12 @@ export default function SettingsPage({ categories, onRefresh }) {
       field_name: fieldName,
       field_label: newFieldLabel,
       field_type: newFieldType,
+      is_sensitive: newFieldSensitive,
       is_visible_in_summary: true,
     });
     setNewFieldLabel('');
     setNewFieldType('text');
+    setNewFieldSensitive(false);
     setShowAddField(false);
     await loadFields();
   };
@@ -83,6 +92,53 @@ export default function SettingsPage({ categories, onRefresh }) {
   const handleToggleVisibility = async (field) => {
     await api.updateField(field.id, { is_visible_in_summary: !field.is_visible_in_summary });
     await loadFields();
+  };
+
+  const handleMoveCategory = async (e, index, direction) => {
+    e.stopPropagation();
+    const newCats = [...localCats];
+    if (direction === -1 && index > 0) {
+      [newCats[index - 1], newCats[index]] = [newCats[index], newCats[index - 1]];
+    } else if (direction === 1 && index < newCats.length - 1) {
+      [newCats[index + 1], newCats[index]] = [newCats[index], newCats[index + 1]];
+    } else {
+      return;
+    }
+    const updates = newCats.map((c, i) => ({ id: c.id, sort_order: i }));
+    setLocalCats(newCats);
+    await api.reorderCategories(updates);
+    await onRefresh();
+  };
+
+  const handleStartEditField = (f) => {
+    setEditingFieldId(f.id);
+    setEditFieldLabel(f.field_label);
+    setEditFieldType(f.field_type);
+    setEditFieldSensitive(f.is_sensitive);
+  };
+
+  const handleSaveEditField = async (f) => {
+    await api.updateField(f.id, {
+      field_label: editFieldLabel,
+      field_type: editFieldType,
+      is_sensitive: editFieldSensitive
+    });
+    setEditingFieldId(null);
+    await loadFields();
+  };
+
+  const handleMoveField = async (index, direction) => {
+    const newFields = [...fields];
+    if (direction === -1 && index > 0) {
+      [newFields[index - 1], newFields[index]] = [newFields[index], newFields[index - 1]];
+    } else if (direction === 1 && index < newFields.length - 1) {
+      [newFields[index + 1], newFields[index]] = [newFields[index], newFields[index + 1]];
+    } else {
+      return;
+    }
+    const updates = newFields.map((f, i) => ({ id: f.id, sort_order: i }));
+    setFields(newFields);
+    await api.reorderFields(updates);
   };
 
   const handlePasswordChange = async (e) => {
@@ -146,7 +202,7 @@ export default function SettingsPage({ categories, onRefresh }) {
               </form>
             )}
 
-            {categories.map(cat => (
+            {localCats.map((cat, index) => (
               <div 
                 key={cat.id} 
                 className={`sidebar-link ${selectedCat?.id === cat.id ? 'active' : ''}`}
@@ -154,7 +210,11 @@ export default function SettingsPage({ categories, onRefresh }) {
               >
                 <span className="sidebar-link-icon"><Icon name={cat.icon} size={18} /></span>
                 <span className="sidebar-link-text">{cat.name}</span>
-                <button className="btn btn-ghost btn-sm ml-auto" onClick={(e) => { e.stopPropagation(); handleDeleteCategory(cat); }} title="Delete category"><Icon name="Trash2" size={16} /></button>
+                <div style={{ display: 'flex', gap: '4px', marginLeft: 'auto' }}>
+                  <button className="btn btn-ghost btn-sm" style={{ padding: '4px' }} onClick={(e) => handleMoveCategory(e, index, -1)} disabled={index === 0}><Icon name="ChevronUp" size={14} /></button>
+                  <button className="btn btn-ghost btn-sm" style={{ padding: '4px' }} onClick={(e) => handleMoveCategory(e, index, 1)} disabled={index === localCats.length - 1}><Icon name="ChevronDown" size={14} /></button>
+                  <button className="btn btn-ghost btn-sm" style={{ padding: '4px', marginLeft: '8px' }} onClick={(e) => { e.stopPropagation(); handleDeleteCategory(cat); }} title="Delete category"><Icon name="Trash2" size={14} /></button>
+                </div>
               </div>
             ))}
           </div>
@@ -187,6 +247,10 @@ export default function SettingsPage({ categories, onRefresh }) {
                         </select>
                       </div>
                     </div>
+                    <div className="mt-16" style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+                      <input type="checkbox" id="field-sensitive" checked={newFieldSensitive} onChange={e => setNewFieldSensitive(e.target.checked)} />
+                      <label htmlFor="field-sensitive" style={{ margin: 0, cursor: 'pointer' }}>Mark as Sensitive Data (Hidden by default)</label>
+                    </div>
                     <div className="flex gap-8 mt-16">
                       <button type="submit" className="btn btn-primary btn-sm">Add</button>
                       <button type="button" className="btn btn-ghost btn-sm" onClick={() => setShowAddField(false)}>Cancel</button>
@@ -208,21 +272,63 @@ export default function SettingsPage({ categories, onRefresh }) {
                         </tr>
                       </thead>
                       <tbody>
-                        {fields.map(f => (
+                        {fields.map((f, index) => (
                           <tr key={f.id}>
-                            <td style={{ fontWeight: 600 }}>{f.field_label}</td>
-                            <td><span className="field-item-type">{f.field_type}</span></td>
-                            <td>{f.is_required ? '✓' : '—'}</td>
-                            <td>{f.is_sensitive ? <span className="badge badge-gold">Yes</span> : '—'}</td>
-                            <td>
-                              <button className={`btn btn-sm ${f.is_visible_in_summary ? 'btn-primary' : 'btn-ghost'}`}
-                                onClick={() => handleToggleVisibility(f)} style={{ padding: '4px 10px' }}>
-                                {f.is_visible_in_summary ? '👁 Visible' : '🙈 Hidden'}
-                              </button>
-                            </td>
-                            <td>
-                              <button className="btn btn-ghost btn-sm" onClick={() => handleDeleteField(f.id)}>🗑</button>
-                            </td>
+                            {editingFieldId === f.id ? (
+                              <>
+                                <td colSpan={2}>
+                                  <div style={{ display: 'flex', gap: '8px' }}>
+                                    <input className="input" value={editFieldLabel} onChange={e => setEditFieldLabel(e.target.value)} style={{ width: '150px' }} />
+                                    <select className="input" value={editFieldType} onChange={e => setEditFieldType(e.target.value)} style={{ width: '100px' }}>
+                                      <option value="text">Text</option>
+                                      <option value="number">Number</option>
+                                      <option value="currency">Currency (₹)</option>
+                                      <option value="percent">Percent (%)</option>
+                                      <option value="date">Date</option>
+                                      <option value="select">Dropdown</option>
+                                    </select>
+                                  </div>
+                                </td>
+                                <td>{f.is_required ? '✓' : '—'}</td>
+                                <td>
+                                  <input type="checkbox" checked={editFieldSensitive} onChange={e => setEditFieldSensitive(e.target.checked)} />
+                                </td>
+                                <td>—</td>
+                                <td>
+                                  <div style={{ display: 'flex', gap: '8px' }}>
+                                    <button className="btn btn-primary btn-sm" onClick={() => handleSaveEditField(f)}>Save</button>
+                                    <button className="btn btn-ghost btn-sm" onClick={() => setEditingFieldId(null)}>Cancel</button>
+                                  </div>
+                                </td>
+                              </>
+                            ) : (
+                              <>
+                                <td style={{ fontWeight: 600 }}>
+                                  <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+                                    <div style={{ display: 'flex', flexDirection: 'column' }}>
+                                      <button className="btn btn-ghost btn-sm" style={{ padding: '0 4px', height: '14px' }} onClick={() => handleMoveField(index, -1)} disabled={index === 0}><Icon name="ChevronUp" size={12} /></button>
+                                      <button className="btn btn-ghost btn-sm" style={{ padding: '0 4px', height: '14px' }} onClick={() => handleMoveField(index, 1)} disabled={index === fields.length - 1}><Icon name="ChevronDown" size={12} /></button>
+                                    </div>
+                                    {f.field_label}
+                                  </div>
+                                </td>
+                                <td><span className="field-item-type">{f.field_type}</span></td>
+                                <td>{f.is_required ? '✓' : '—'}</td>
+                                <td>{f.is_sensitive ? <span className="badge badge-gold">Yes</span> : '—'}</td>
+                                <td>
+                                  <button className={`btn btn-sm ${f.is_visible_in_summary ? 'btn-primary' : 'btn-ghost'}`}
+                                    onClick={() => handleToggleVisibility(f)} style={{ padding: '4px 10px' }}>
+                                    {f.is_visible_in_summary ? '👁 Visible' : '🙈 Hidden'}
+                                  </button>
+                                </td>
+                                <td>
+                                  <div style={{ display: 'flex', gap: '4px' }}>
+                                    <button className="btn btn-ghost btn-sm" onClick={() => handleStartEditField(f)}>✎</button>
+                                    <button className="btn btn-ghost btn-sm" onClick={() => handleDeleteField(f.id)}>🗑</button>
+                                  </div>
+                                </td>
+                              </>
+                            )}
                           </tr>
                         ))}
                       </tbody>

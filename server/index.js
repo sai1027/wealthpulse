@@ -91,6 +91,14 @@ app.post('/api/categories', requireAuth, (req, res) => {
   res.json({ id: lastId });
 });
 
+app.put('/api/categories/reorder', requireAuth, (req, res) => {
+  const { category_orders } = req.body;
+  for (const { id, sort_order } of category_orders) {
+    runStmt('UPDATE categories SET sort_order = ? WHERE id = ? AND user_id = ?', [sort_order, id, req.session.userId]);
+  }
+  res.json({ ok: true });
+});
+
 app.put('/api/categories/:id', requireAuth, (req, res) => {
   const cat = queryGet('SELECT * FROM categories WHERE id = ? AND user_id = ?', [req.params.id, req.session.userId]);
   if (!cat) return res.status(404).json({ error: 'Not found' });
@@ -113,7 +121,8 @@ app.delete('/api/categories/:id', requireAuth, (req, res) => {
   res.json({ ok: true });
 });
 
-// ─── FIELD DEFINITIONS ROUTES ────────────────────────────────
+// ─── CATEGORIES ROUTES ───────────────────────────────────────
+// ─── CATEGORIES ROUTES ───────────────────────────────────────
 app.get('/api/categories/:categoryId/fields', requireAuth, (req, res) => {
   const cat = queryGet('SELECT id FROM categories WHERE id = ? AND user_id = ?', [req.params.categoryId, req.session.userId]);
   if (!cat) return res.status(404).json({ error: 'Category not found' });
@@ -129,6 +138,14 @@ app.post('/api/fields', requireAuth, (req, res) => {
     [category_id, field_name, field_label, field_type || 'text', options || null, is_required ? 1 : 0, is_sensitive ? 1 : 0, is_visible_in_summary ? 1 : 0, (max?.max_order || 0) + 1]
   );
   res.json({ id: lastId });
+});
+
+app.put('/api/fields/reorder', requireAuth, (req, res) => {
+  const { field_orders } = req.body;
+  for (const { id, sort_order } of field_orders) {
+    runStmt('UPDATE field_definitions SET sort_order = ? WHERE id = ?', [sort_order, id]);
+  }
+  res.json({ ok: true });
 });
 
 app.put('/api/fields/:id', requireAuth, (req, res) => {
@@ -158,13 +175,7 @@ app.delete('/api/fields/:id', requireAuth, (req, res) => {
   res.json({ ok: true });
 });
 
-app.put('/api/fields/reorder', requireAuth, (req, res) => {
-  const { field_orders } = req.body;
-  for (const { id, sort_order } of field_orders) {
-    runStmt('UPDATE field_definitions SET sort_order = ? WHERE id = ?', [sort_order, id]);
-  }
-  res.json({ ok: true });
-});
+// ─── ITEMS ROUTES ────────────────────────────────────────────
 
 // ─── ITEMS ROUTES ────────────────────────────────────────────
 app.get('/api/items', requireAuth, (req, res) => {

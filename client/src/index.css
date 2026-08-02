@@ -909,6 +909,29 @@ select.input {
   z-index: 1;
 }
 
+/* ─── SENSITIVE FIELDS ─────────────────────────────────────── */
+.sensitive-field {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.sensitive-field-value {
+  font-family: monospace;
+  letter-spacing: 2px;
+}
+
+.sensitive-field-toggle {
+  cursor: pointer;
+  opacity: 0.6;
+  font-size: 14px;
+  transition: opacity 0.2s;
+}
+
+.sensitive-field-toggle:hover {
+  opacity: 1;
+}
+
 /* ─── RETURNS INDICATOR ──────────────────────────────────── */
 .returns-positive {
   color: var(--accent-green);

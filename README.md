@@ -57,7 +57,7 @@ Enjoy absolute freedom to customize the fields you want to track. You can easily
 ![Settings](artifacts/settings.png)
 Toggle between Dark and Light mode, update your credentials, and add or remove categories. Keep your tracker clutter-free by only enabling what you want to see!
 
-## Author
+## Credits
 
 Built and maintained by N Venkata Sai Teja.
 

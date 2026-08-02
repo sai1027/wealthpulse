@@ -41,6 +41,7 @@ export const api = {
   createCategory: (data) => request('/api/categories', { method: 'POST', body: data }),
   updateCategory: (id, data) => request(`/api/categories/${id}`, { method: 'PUT', body: data }),
   deleteCategory: (id) => request(`/api/categories/${id}`, { method: 'DELETE' }),
+  reorderCategories: (category_orders) => request('/api/categories/reorder', { method: 'PUT', body: { category_orders } }),
 
   // Fields
   getFields: (categoryId) => request(`/api/categories/${categoryId}/fields`),

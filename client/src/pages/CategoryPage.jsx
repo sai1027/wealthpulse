@@ -410,7 +410,7 @@ function ItemModal({ category, fields, item, onClose, onSave }) {
                   ) : (
                     <input
                       className="input"
-                      type={f.field_type === 'currency' || f.field_type === 'number' || f.field_type === 'percent' ? 'number' : f.field_type === 'date' ? 'date' : 'text'}
+                      type={f.is_sensitive ? 'password' : (f.field_type === 'currency' || f.field_type === 'number' || f.field_type === 'percent' ? 'number' : f.field_type === 'date' ? 'date' : 'text')}
                       step={f.field_type === 'currency' || f.field_type === 'percent' ? '0.01' : undefined}
                       value={values[f.id] || ''}
                       onChange={e => handleChange(f.id, e.target.value)}
@@ -537,6 +537,7 @@ function FieldManagerModal({ category, fields, onClose, onSave }) {
   const [newFieldName, setNewFieldName] = useState('');
   const [newFieldLabel, setNewFieldLabel] = useState('');
   const [newFieldType, setNewFieldType] = useState('text');
+  const [newFieldSensitive, setNewFieldSensitive] = useState(false);
   const [showAddForm, setShowAddForm] = useState(false);
 
   const handleAddField = async (e) => {
@@ -547,10 +548,12 @@ function FieldManagerModal({ category, fields, onClose, onSave }) {
       field_name: fieldName,
       field_label: newFieldLabel,
       field_type: newFieldType,
+      is_sensitive: newFieldSensitive,
       is_visible_in_summary: true,
     });
     setNewFieldLabel('');
     setNewFieldType('text');
+    setNewFieldSensitive(false);
     setShowAddForm(false);
     await onSave();
   };
@@ -599,6 +602,10 @@ function FieldManagerModal({ category, fields, onClose, onSave }) {
                     <option value="select">Dropdown</option>
                   </select>
                 </div>
+              </div>
+              <div className="mt-16" style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+                <input type="checkbox" id="field-sensitive-modal" checked={newFieldSensitive} onChange={e => setNewFieldSensitive(e.target.checked)} />
+                <label htmlFor="field-sensitive-modal" style={{ margin: 0, cursor: 'pointer' }}>Mark as Sensitive Data</label>
               </div>
               <div className="flex gap-8 mt-16">
                 <button type="submit" className="btn btn-primary btn-sm">Add Field</button>
