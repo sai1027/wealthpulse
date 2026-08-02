@@ -427,7 +427,7 @@ app.get('/api/export', requireAuth, (req, res) => {
 
   const buf = XLSX.write(wb, { type: 'buffer', bookType: 'xlsx' });
   res.setHeader('Content-Type', 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet');
-  res.setHeader('Content-Disposition', 'attachment; filename=WealthPulse_Export.xlsx');
+  res.setHeader('Content-Disposition', 'attachment; filename="WealthPulse_Export.xlsx"');
   res.send(Buffer.from(buf));
 });
 
