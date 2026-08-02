@@ -2,55 +2,60 @@
 
 /* ─── DESIGN TOKENS ──────────────────────────────────────── */
 :root {
-  --bg-base: #07070d;
-  --bg-surface: #0e0e18;
-  --bg-surface-2: #151525;
-  --bg-surface-3: #1c1c32;
-  --bg-hover: #22223a;
-  --bg-active: #2a2a48;
+  /* LIGHT MODE (DEFAULT) - iOS Aesthetic */
+  --bg-base: #f2f2f7;
+  --bg-surface: rgba(255, 255, 255, 0.7);
+  --bg-surface-2: rgba(255, 255, 255, 0.85);
+  --bg-surface-3: rgba(255, 255, 255, 1);
+  --bg-hover: rgba(0, 0, 0, 0.04);
+  --bg-active: rgba(0, 0, 0, 0.08);
 
-  --border: rgba(255, 255, 255, 0.06);
-  --border-hover: rgba(255, 255, 255, 0.12);
-  --border-active: rgba(108, 92, 231, 0.4);
+  --border: rgba(0, 0, 0, 0.1);
+  --border-hover: rgba(0, 0, 0, 0.15);
+  --border-active: rgba(108, 92, 231, 0.6);
 
-  --primary: #6c5ce7;
-  --primary-light: #8b7cf7;
-  --primary-dark: #5241c5;
-  --primary-glow: rgba(108, 92, 231, 0.15);
-  --primary-glow-strong: rgba(108, 92, 231, 0.3);
+  --primary: #5e5ce6;
+  --primary-light: #7a78fa;
+  --primary-dark: #4a48b5;
+  --primary-glow: rgba(94, 92, 230, 0.15);
+  --primary-glow-strong: rgba(94, 92, 230, 0.3);
 
-  --accent-teal: #00cec9;
-  --accent-teal-glow: rgba(0, 206, 201, 0.15);
-  --accent-green: #00b894;
-  --accent-green-glow: rgba(0, 184, 148, 0.15);
-  --accent-red: #ff6b6b;
-  --accent-red-glow: rgba(255, 107, 107, 0.15);
-  --accent-gold: #fdcb6e;
-  --accent-gold-glow: rgba(253, 203, 110, 0.15);
-  --accent-blue: #74b9ff;
-  --accent-pink: #fd79a8;
-  --accent-orange: #e17055;
+  --accent-teal: #32ade6;
+  --accent-teal-glow: rgba(50, 173, 230, 0.15);
+  --accent-green: #34c759;
+  --accent-green-glow: rgba(52, 199, 89, 0.15);
+  --accent-red: #ff3b30;
+  --accent-red-glow: rgba(255, 59, 48, 0.15);
+  --accent-gold: #ffcc00;
+  --accent-gold-glow: rgba(255, 204, 0, 0.15);
+  --accent-blue: #007aff;
+  --accent-pink: #ff2d55;
+  --accent-orange: #ff9500;
 
-  --text-primary: #e8e8f0;
-  --text-secondary: #9898b0;
-  --text-muted: #5a5a78;
-  --text-inverse: #07070d;
+  --text-primary: #1c1c1e;
+  --text-secondary: #8e8e93;
+  --text-muted: #aeaeb2;
+  --text-inverse: #ffffff;
+  --text-active: var(--primary-dark);
 
-  --gradient-primary: linear-gradient(135deg, #6c5ce7, #00cec9);
-  --gradient-surface: linear-gradient(135deg, rgba(108, 92, 231, 0.08), rgba(0, 206, 201, 0.05));
-  --gradient-gold: linear-gradient(135deg, #fdcb6e, #e17055);
-  --gradient-green: linear-gradient(135deg, #00b894, #00cec9);
-  --gradient-red: linear-gradient(135deg, #ff6b6b, #fd79a8);
+  --gradient-primary: linear-gradient(135deg, #5e5ce6, #32ade6);
+  --gradient-surface: linear-gradient(135deg, rgba(255, 255, 255, 0.9), rgba(255, 255, 255, 0.6));
+  --gradient-gold: linear-gradient(135deg, #ffcc00, #ff9500);
+  --gradient-green: linear-gradient(135deg, #34c759, #32ade6);
+  --gradient-red: linear-gradient(135deg, #ff3b30, #ff2d55);
 
-  --shadow-sm: 0 2px 8px rgba(0, 0, 0, 0.3);
-  --shadow-md: 0 4px 16px rgba(0, 0, 0, 0.4);
-  --shadow-lg: 0 8px 32px rgba(0, 0, 0, 0.5);
-  --shadow-glow: 0 0 20px rgba(108, 92, 231, 0.2);
+  --shadow-sm: 0 1px 4px rgba(0, 0, 0, 0.05);
+  --shadow-md: 0 4px 16px rgba(0, 0, 0, 0.08);
+  --shadow-lg: 0 8px 32px rgba(0, 0, 0, 0.12);
+  --shadow-glow: 0 0 20px rgba(94, 92, 230, 0.3);
 
-  --radius-sm: 8px;
-  --radius-md: 12px;
-  --radius-lg: 16px;
-  --radius-xl: 24px;
+  --glass-blur: blur(20px);
+  --glass-blur-heavy: blur(40px);
+
+  --radius-sm: 10px;
+  --radius-md: 14px;
+  --radius-lg: 20px;
+  --radius-xl: 28px;
   --radius-full: 9999px;
 
   --font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
@@ -60,6 +65,32 @@
 
   --sidebar-width: 260px;
   --header-height: 64px;
+}
+
+[data-theme='dark'] {
+  /* DARK MODE - iOS Aesthetic */
+  --bg-base: #000000;
+  --bg-surface: rgba(28, 28, 30, 0.65);
+  --bg-surface-2: rgba(44, 44, 46, 0.85);
+  --bg-surface-3: rgba(58, 58, 60, 1);
+  --bg-hover: rgba(255, 255, 255, 0.08);
+  --bg-active: rgba(255, 255, 255, 0.12);
+
+  --border: rgba(255, 255, 255, 0.12);
+  --border-hover: rgba(255, 255, 255, 0.2);
+  --border-active: rgba(94, 92, 230, 0.8);
+
+  --text-primary: #f2f2f7;
+  --text-secondary: #aeaeb2;
+  --text-muted: #8e8e93;
+  --text-inverse: #000000;
+  --text-active: #ffffff;
+
+  --gradient-surface: linear-gradient(135deg, rgba(44, 44, 46, 0.8), rgba(28, 28, 30, 0.5));
+  
+  --shadow-sm: 0 1px 4px rgba(0, 0, 0, 0.3);
+  --shadow-md: 0 4px 16px rgba(0, 0, 0, 0.4);
+  --shadow-lg: 0 8px 32px rgba(0, 0, 0, 0.5);
 }
 
 /* ─── RESET & BASE ───────────────────────────────────────── */
@@ -116,6 +147,8 @@ a:hover { color: var(--primary); }
 .sidebar {
   width: var(--sidebar-width);
   background: var(--bg-surface);
+  backdrop-filter: var(--glass-blur);
+  -webkit-backdrop-filter: var(--glass-blur);
   border-right: 1px solid var(--border);
   display: flex;
   flex-direction: column;
@@ -203,7 +236,7 @@ a:hover { color: var(--primary); }
 }
 
 .sidebar-link.active {
-  color: white;
+  color: var(--text-active);
   background: var(--primary-glow);
   border: 1px solid var(--border-active);
 }
@@ -292,7 +325,8 @@ a:hover { color: var(--primary); }
   align-items: center;
   justify-content: space-between;
   background: var(--bg-surface);
-  backdrop-filter: blur(20px);
+  backdrop-filter: var(--glass-blur);
+  -webkit-backdrop-filter: var(--glass-blur);
   position: sticky;
   top: 0;
   z-index: 50;
@@ -335,6 +369,8 @@ a:hover { color: var(--primary); }
 /* ─── CARDS ──────────────────────────────────────────────── */
 .card {
   background: var(--bg-surface);
+  backdrop-filter: var(--glass-blur);
+  -webkit-backdrop-filter: var(--glass-blur);
   border: 1px solid var(--border);
   border-radius: var(--radius-lg);
   padding: 24px;
@@ -347,9 +383,9 @@ a:hover { color: var(--primary); }
 }
 
 .card-glass {
-  background: rgba(14, 14, 24, 0.7);
-  backdrop-filter: blur(20px);
-  -webkit-backdrop-filter: blur(20px);
+  background: var(--bg-surface);
+  backdrop-filter: var(--glass-blur);
+  -webkit-backdrop-filter: var(--glass-blur);
   border: 1px solid var(--border);
   border-radius: var(--radius-lg);
   padding: 24px;

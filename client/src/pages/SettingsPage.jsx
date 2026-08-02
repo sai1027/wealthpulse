@@ -1,9 +1,10 @@
 import { useState, useEffect } from 'react';
 import { api } from '../api';
-import { useAuth } from '../App';
+import { useAuth, useTheme } from '../App';
 
 export default function SettingsPage({ categories, onRefresh }) {
   const { user } = useAuth();
+  const { theme, toggleTheme } = useTheme();
   const [selectedCat, setSelectedCat] = useState(null);
   const [fields, setFields] = useState([]);
   const [showAddCategory, setShowAddCategory] = useState(false);
@@ -107,8 +108,18 @@ export default function SettingsPage({ categories, onRefresh }) {
 
       <div className="page-body">
         <div className="grid-2" style={{ gridTemplateColumns: '300px 1fr', gap: 24 }}>
-          {/* Left: Categories List */}
+          {/* Left: Settings List */}
           <div>
+            <div className="section-header">
+              <div className="section-title">Appearance</div>
+            </div>
+            <div className="card mb-24" style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: '16px 20px' }}>
+              <div style={{ fontWeight: 600 }}>Dark Mode</div>
+              <button className={`btn btn-sm ${theme === 'dark' ? 'btn-primary' : 'btn-ghost'}`} onClick={toggleTheme}>
+                {theme === 'dark' ? '🌙 On' : '☀️ Off'}
+              </button>
+            </div>
+
             <div className="section-header">
               <div className="section-title">Categories</div>
               <button className="btn btn-primary btn-sm" onClick={() => setShowAddCategory(!showAddCategory)}>+</button>

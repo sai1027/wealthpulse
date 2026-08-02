@@ -7,6 +7,27 @@ import CreditCardsPage from './pages/CreditCardsPage';
 import SettingsPage from './pages/SettingsPage';
 import './index.css';
 
+// ─── THEME CONTEXT ───────────────────────────────────────────
+export const ThemeContext = createContext(null);
+export const useTheme = () => useContext(ThemeContext);
+
+function ThemeProvider({ children }) {
+  const [theme, setTheme] = useState(() => localStorage.getItem('theme') || 'light');
+
+  useEffect(() => {
+    document.documentElement.dataset.theme = theme;
+    localStorage.setItem('theme', theme);
+  }, [theme]);
+
+  const toggleTheme = () => setTheme(t => (t === 'light' ? 'dark' : 'light'));
+
+  return (
+    <ThemeContext.Provider value={{ theme, toggleTheme }}>
+      {children}
+    </ThemeContext.Provider>
+  );
+}
+
 // ─── AUTH CONTEXT ────────────────────────────────────────────
 const AuthContext = createContext(null);
 export const useAuth = () => useContext(AuthContext);
@@ -248,11 +269,13 @@ function AppRoutes() {
 export default function App() {
   return (
     <BrowserRouter>
-      <AuthProvider>
-        <ToastProvider>
-          <AppRoutes />
-        </ToastProvider>
-      </AuthProvider>
+      <ThemeProvider>
+        <AuthProvider>
+          <ToastProvider>
+            <AppRoutes />
+          </ToastProvider>
+        </AuthProvider>
+      </ThemeProvider>
     </BrowserRouter>
   );
 }

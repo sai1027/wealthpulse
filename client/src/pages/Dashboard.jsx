@@ -1,12 +1,14 @@
 import { useState, useEffect, useRef } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { api, formatCurrency, formatPercent } from '../api';
+import { useTheme } from '../App';
 import { Chart as ChartJS, ArcElement, Tooltip, Legend, CategoryScale, LinearScale, PointElement, LineElement, Filler } from 'chart.js';
 import { Doughnut, Line } from 'react-chartjs-2';
 
 ChartJS.register(ArcElement, Tooltip, Legend, CategoryScale, LinearScale, PointElement, LineElement, Filler);
 
 export default function Dashboard({ categories }) {
+  const { theme } = useTheme();
   const [data, setData] = useState(null);
   const [loading, setLoading] = useState(true);
   const navigate = useNavigate();
@@ -60,6 +62,13 @@ export default function Dashboard({ categories }) {
     }]
   };
 
+  const isDark = theme === 'dark';
+  const textColor = isDark ? '#aeaeb2' : '#8e8e93';
+  const gridColor = isDark ? 'rgba(255, 255, 255, 0.08)' : 'rgba(0, 0, 0, 0.05)';
+  const tooltipBg = isDark ? 'rgba(28, 28, 30, 0.85)' : 'rgba(255, 255, 255, 0.85)';
+  const tooltipBorder = isDark ? 'rgba(255, 255, 255, 0.12)' : 'rgba(0, 0, 0, 0.1)';
+  const tooltipText = isDark ? '#f2f2f7' : '#1c1c1e';
+
   const doughnutOptions = {
     responsive: true,
     maintainAspectRatio: false,
@@ -67,13 +76,13 @@ export default function Dashboard({ categories }) {
     plugins: {
       legend: {
         position: 'bottom',
-        labels: { color: '#9898b0', font: { family: 'Inter', size: 12 }, padding: 16, usePointStyle: true, pointStyleWidth: 8 }
+        labels: { color: textColor, font: { family: 'Inter', size: 12 }, padding: 16, usePointStyle: true, pointStyleWidth: 8 }
       },
       tooltip: {
-        backgroundColor: '#1c1c32',
-        titleColor: '#e8e8f0',
-        bodyColor: '#9898b0',
-        borderColor: 'rgba(255,255,255,0.06)',
+        backgroundColor: tooltipBg,
+        titleColor: tooltipText,
+        bodyColor: textColor,
+        borderColor: tooltipBorder,
         borderWidth: 1,
         padding: 12,
         callbacks: {
@@ -121,14 +130,14 @@ export default function Dashboard({ categories }) {
     responsive: true,
     maintainAspectRatio: false,
     scales: {
-      x: { grid: { color: 'rgba(255,255,255,0.03)' }, ticks: { color: '#5a5a78', font: { family: 'Inter', size: 11 } } },
-      y: { grid: { color: 'rgba(255,255,255,0.03)' }, ticks: { color: '#5a5a78', font: { family: 'Inter', size: 11 }, callback: v => formatCurrency(v) } }
+      x: { grid: { color: gridColor }, ticks: { color: textColor, font: { family: 'Inter', size: 11 } } },
+      y: { grid: { color: gridColor }, ticks: { color: textColor, font: { family: 'Inter', size: 11 }, callback: v => formatCurrency(v) } }
     },
     plugins: {
-      legend: { labels: { color: '#9898b0', font: { family: 'Inter', size: 12 }, usePointStyle: true, padding: 16 } },
+      legend: { labels: { color: textColor, font: { family: 'Inter', size: 12 }, usePointStyle: true, padding: 16 } },
       tooltip: {
-        backgroundColor: '#1c1c32', titleColor: '#e8e8f0', bodyColor: '#9898b0',
-        borderColor: 'rgba(255,255,255,0.06)', borderWidth: 1, padding: 12,
+        backgroundColor: tooltipBg, titleColor: tooltipText, bodyColor: textColor,
+        borderColor: tooltipBorder, borderWidth: 1, padding: 12,
         callbacks: { label: (ctx) => `${ctx.dataset.label}: ${formatCurrency(ctx.raw)}` }
       }
     }
