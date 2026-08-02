@@ -1,6 +1,7 @@
 import { useState, useEffect } from 'react';
 import { api } from '../api';
 import { useAuth, useTheme } from '../App';
+import Icon from '../components/Icon';
 
 export default function SettingsPage({ categories, onRefresh }) {
   const { user } = useAuth();
@@ -9,7 +10,7 @@ export default function SettingsPage({ categories, onRefresh }) {
   const [fields, setFields] = useState([]);
   const [showAddCategory, setShowAddCategory] = useState(false);
   const [newCatName, setNewCatName] = useState('');
-  const [newCatIcon, setNewCatIcon] = useState('📁');
+  const [newCatIcon, setNewCatIcon] = useState('Folder');
   const [newCatType, setNewCatType] = useState('custom');
   const [showAddField, setShowAddField] = useState(false);
   const [newFieldLabel, setNewFieldLabel] = useState('');
@@ -101,7 +102,7 @@ export default function SettingsPage({ categories, onRefresh }) {
     <>
       <div className="page-header">
         <div className="page-header-left">
-          <div className="page-title"><span className="page-title-icon">⚙️</span> Settings</div>
+          <div className="page-title"><span className="page-title-icon"><Icon name="Settings" size={24} /></span> Settings</div>
           <div className="page-subtitle">Manage categories, fields & account</div>
         </div>
       </div>
@@ -110,15 +111,6 @@ export default function SettingsPage({ categories, onRefresh }) {
         <div className="grid-2" style={{ gridTemplateColumns: '300px 1fr', gap: 24 }}>
           {/* Left: Settings List */}
           <div>
-            <div className="section-header">
-              <div className="section-title">Appearance</div>
-            </div>
-            <div className="card mb-24" style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: '16px 20px' }}>
-              <div style={{ fontWeight: 600 }}>Dark Mode</div>
-              <button className={`btn btn-sm ${theme === 'dark' ? 'btn-primary' : 'btn-ghost'}`} onClick={toggleTheme}>
-                {theme === 'dark' ? '🌙 On' : '☀️ Off'}
-              </button>
-            </div>
 
             <div className="section-header">
               <div className="section-title">Categories</div>
@@ -133,8 +125,8 @@ export default function SettingsPage({ categories, onRefresh }) {
                 </div>
                 <div className="grid-2 gap-12 mb-16">
                   <div className="input-group">
-                    <label className="input-label">Icon</label>
-                    <input className="input" value={newCatIcon} onChange={e => setNewCatIcon(e.target.value)} placeholder="📁" />
+                    <label className="input-label">Icon (Lucide Name)</label>
+                    <input className="input" value={newCatIcon} onChange={e => setNewCatIcon(e.target.value)} placeholder="Folder" />
                   </div>
                   <div className="input-group">
                     <label className="input-label">Type</label>
@@ -155,20 +147,14 @@ export default function SettingsPage({ categories, onRefresh }) {
             )}
 
             {categories.map(cat => (
-              <div
-                key={cat.id}
-                className={`field-item ${selectedCat?.id === cat.id ? 'active' : ''}`}
-                style={{
-                  cursor: 'pointer',
-                  background: selectedCat?.id === cat.id ? 'var(--primary-glow)' : undefined,
-                  borderColor: selectedCat?.id === cat.id ? 'var(--border-active)' : undefined,
-                }}
+              <div 
+                key={cat.id} 
+                className={`sidebar-link ${selectedCat?.id === cat.id ? 'active' : ''}`}
                 onClick={() => setSelectedCat(cat)}
               >
-                <span style={{ fontSize: 18 }}>{cat.icon}</span>
-                <span className="field-item-name">{cat.name}</span>
-                <span className="field-item-type">{cat.category_type}</span>
-                <button className="btn btn-ghost btn-sm" onClick={(e) => { e.stopPropagation(); handleDeleteCategory(cat); }} title="Delete category">🗑</button>
+                <span className="sidebar-link-icon"><Icon name={cat.icon} size={18} /></span>
+                <span className="sidebar-link-text">{cat.name}</span>
+                <button className="btn btn-ghost btn-sm ml-auto" onClick={(e) => { e.stopPropagation(); handleDeleteCategory(cat); }} title="Delete category"><Icon name="Trash2" size={16} /></button>
               </div>
             ))}
           </div>
@@ -292,6 +278,19 @@ export default function SettingsPage({ categories, onRefresh }) {
                 ) : (
                   <button className="btn btn-secondary btn-sm" onClick={() => setShowPasswordChange(true)}>Change Password</button>
                 )}
+              </div>
+            </div>
+
+            {/* Appearance Settings */}
+            <div className="mt-24">
+              <div className="section-header">
+                <div className="section-title">🎨 Appearance</div>
+              </div>
+              <div className="card" style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: '16px 20px' }}>
+                <div style={{ fontWeight: 600 }}>Dark Mode</div>
+                <button className={`btn btn-sm ${theme === 'dark' ? 'btn-primary' : 'btn-ghost'}`} onClick={toggleTheme}>
+                  <Icon name={theme === 'dark' ? 'Moon' : 'Sun'} size={14} style={{display: 'inline', verticalAlign: 'middle'}}/> {theme === 'dark' ? 'On' : 'Off'}
+                </button>
               </div>
             </div>
           </div>

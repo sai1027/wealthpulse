@@ -2,6 +2,7 @@ import { useState, useEffect, useRef } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { api, formatCurrency, formatPercent } from '../api';
 import { useTheme } from '../App';
+import Icon from '../components/Icon';
 import { Chart as ChartJS, ArcElement, Tooltip, Legend, CategoryScale, LinearScale, PointElement, LineElement, Filler } from 'chart.js';
 import { Doughnut, Line } from 'react-chartjs-2';
 
@@ -50,15 +51,24 @@ export default function Dashboard({ categories }) {
 
   // Asset allocation chart
   const allocationData = investmentCats.filter(c => c.total_current > 0);
-  const colors = ['#6c5ce7', '#00cec9', '#fd79a8', '#fdcb6e', '#e17055', '#74b9ff', '#a29bfe', '#00b894'];
+  const CHART_COLORS = {
+    'Stocks': '#4f46e5',
+    'Mutual Funds': '#10b981',
+    'REITs': '#f59e0b',
+    'Gold': '#eab308',
+    'Cash & Others': '#64748b',
+    'Cash': '#64748b',
+    'US Stocks': '#06b6d4',
+  };
+  const getChartColor = (name, index) => CHART_COLORS[name] || ['#4f46e5', '#10b981', '#f59e0b', '#06b6d4', '#8b5cf6'][index % 5];
 
   const doughnutData = {
     labels: allocationData.map(c => c.name),
     datasets: [{
       data: allocationData.map(c => c.total_current),
-      backgroundColor: colors.slice(0, allocationData.length),
+      backgroundColor: allocationData.map((c, i) => getChartColor(c.name, i)),
       borderWidth: 0,
-      hoverOffset: 8,
+      hoverOffset: 4
     }]
   };
 
@@ -101,26 +111,26 @@ export default function Dashboard({ categories }) {
     datasets: [{
       label: 'Net Worth',
       data: data.monthly_trend.map(t => t.total_current),
-      borderColor: '#6c5ce7',
-      backgroundColor: 'rgba(108, 92, 231, 0.1)',
+      borderColor: '#4f46e5',
+      backgroundColor: 'rgba(79, 70, 229, 0.1)',
       fill: true,
       tension: 0.4,
       pointRadius: 4,
       pointHoverRadius: 6,
-      pointBackgroundColor: '#6c5ce7',
-      pointBorderColor: '#0e0e18',
+      pointBackgroundColor: '#4f46e5',
+      pointBorderColor: isDark ? '#1b2028' : '#ffffff',
       pointBorderWidth: 2,
     }, {
       label: 'Invested',
       data: data.monthly_trend.map(t => t.total_invested),
-      borderColor: '#00cec9',
-      backgroundColor: 'rgba(0, 206, 201, 0.05)',
+      borderColor: '#10b981',
+      backgroundColor: 'rgba(16, 185, 129, 0.05)',
       fill: true,
       tension: 0.4,
       pointRadius: 3,
       pointHoverRadius: 5,
-      pointBackgroundColor: '#00cec9',
-      pointBorderColor: '#0e0e18',
+      pointBackgroundColor: '#10b981',
+      pointBorderColor: isDark ? '#1b2028' : '#ffffff',
       pointBorderWidth: 2,
       borderDash: [5, 5],
     }]
@@ -148,43 +158,80 @@ export default function Dashboard({ categories }) {
     else navigate(`/category/${cat.slug}`);
   };
 
+  const getIconColor = (name) => {
+    const map = {
+      'Stocks': '#06b6d4',
+      'ETFs': '#f59e0b',
+      'Mutual Funds': '#10b981',
+      'REITs': '#8b5cf6',
+      'US Stocks': '#4f46e5',
+      'Unlisted Stocks': '#eab308',
+      'Credit Cards': '#3b82f6',
+      'Term Insurance': '#3b82f6',
+      'Life Insurance': '#ec4899',
+    };
+    return map[name] || 'currentColor';
+  };
+
   return (
     <>
       <div className="page-header">
         <div className="page-header-left">
-          <div className="page-title"><span className="page-title-icon">🏠</span> Dashboard</div>
+          <div className="page-title"><span className="page-title-icon" style={{ color: '#eab308' }}><Icon name="LayoutDashboard" size={24} /></span> Dashboard</div>
           <div className="page-subtitle">Your complete financial overview</div>
         </div>
         <div className="page-header-actions">
-          <button className="btn btn-secondary" onClick={() => api.exportExcel()}>⬇️ Export All</button>
+          <button className="btn btn-secondary" onClick={() => api.exportExcel()}>
+            <Icon name="Download" size={16} /> Export All
+          </button>
         </div>
       </div>
       <div className="page-body">
         {/* Summary Stats */}
         <div className="grid-4 mb-24 animate-in">
-          <div className="stat-card">
-            <div className="stat-card-label">💰 Net Worth</div>
-            <div className="stat-card-value">{formatCurrency(netWorth)}</div>
-            <div className="stat-card-sub">Investments + Bank Balance</div>
-          </div>
-          <div className="stat-card">
-            <div className="stat-card-label">📈 Invested</div>
-            <div className="stat-card-value">{formatCurrency(totalInvested)}</div>
-            <div className="stat-card-sub">Across {investmentCats.reduce((s, c) => s + c.item_count, 0)} holdings</div>
-          </div>
-          <div className="stat-card">
-            <div className="stat-card-label">📊 Returns</div>
-            <div className="stat-card-value" style={{ background: totalReturns >= 0 ? 'var(--gradient-green)' : 'var(--gradient-red)', WebkitBackgroundClip: 'text', WebkitTextFillColor: 'transparent', backgroundClip: 'text' }}>
-              {formatPercent(returnsPercent)}
+          <div className="stat-card" style={{ display: 'flex', alignItems: 'center', gap: '16px' }}>
+            <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', width: '48px', height: '48px', borderRadius: '50%', background: 'rgba(234, 179, 8, 0.1)', color: '#eab308', flexShrink: 0 }}>
+              <Icon name="Wallet" size={24} />
             </div>
-            <div className={`stat-card-sub ${totalReturns >= 0 ? 'returns-positive' : 'returns-negative'}`}>
-              {totalReturns >= 0 ? '↑' : '↓'} {formatCurrency(Math.abs(totalReturns))}
+            <div>
+              <div className="stat-card-label">Net Worth</div>
+              <div className="stat-card-value" style={{ color: '#ffffff' }}>{formatCurrency(netWorth)}</div>
+              <div className="stat-card-sub">Investments + Bank Balance</div>
             </div>
           </div>
-          <div className="stat-card">
-            <div className="stat-card-label">🏦 Bank Balance</div>
-            <div className="stat-card-value">{formatCurrency(totalBankBalance)}</div>
-            <div className="stat-card-sub">{data.categories.filter(c => c.category_type === 'bank').reduce((s, c) => s + c.item_count, 0)} accounts</div>
+          <div className="stat-card" style={{ display: 'flex', alignItems: 'center', gap: '16px' }}>
+            <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', width: '48px', height: '48px', borderRadius: '50%', background: 'rgba(139, 92, 246, 0.1)', color: '#8b5cf6', flexShrink: 0 }}>
+              <Icon name="PieChart" size={24} />
+            </div>
+            <div>
+              <div className="stat-card-label">Invested</div>
+              <div className="stat-card-value" style={{ color: '#4F46E5' }}>{formatCurrency(totalInvested)}</div>
+              <div className="stat-card-sub">Across {investmentCats.reduce((s, c) => s + c.item_count, 0)} holdings</div>
+            </div>
+          </div>
+          <div className="stat-card" style={{ display: 'flex', alignItems: 'center', gap: '16px' }}>
+            <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', width: '48px', height: '48px', borderRadius: '50%', background: 'rgba(16, 185, 129, 0.1)', color: '#10b981', flexShrink: 0 }}>
+              <Icon name="TrendingUp" size={24} />
+            </div>
+            <div>
+              <div className="stat-card-label">Returns</div>
+              <div className="stat-card-value" style={{ color: totalReturns >= 0 ? '#10b981' : '#ef4444' }}>
+                {formatPercent(returnsPercent)}
+              </div>
+              <div className={`stat-card-sub ${totalReturns >= 0 ? 'returns-positive' : 'returns-negative'}`}>
+                <Icon name={totalReturns >= 0 ? "ArrowUpRight" : "ArrowDownRight"} size={14} style={{display: 'inline', verticalAlign: 'middle'}}/> {formatCurrency(Math.abs(totalReturns))}
+              </div>
+            </div>
+          </div>
+          <div className="stat-card" style={{ display: 'flex', alignItems: 'center', gap: '16px' }}>
+            <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', width: '48px', height: '48px', borderRadius: '50%', background: 'rgba(156, 163, 175, 0.1)', color: '#9ca3af', flexShrink: 0 }}>
+              <Icon name="Landmark" size={24} />
+            </div>
+            <div>
+              <div className="stat-card-label">Bank Balance</div>
+              <div className="stat-card-value">{formatCurrency(totalBankBalance)}</div>
+              <div className="stat-card-sub">{data.categories.filter(c => c.category_type === 'bank').reduce((s, c) => s + c.item_count, 0)} accounts</div>
+            </div>
           </div>
         </div>
 
@@ -198,7 +245,7 @@ export default function Dashboard({ categories }) {
               </div>
             ) : (
               <div className="empty-state">
-                <div className="empty-state-icon">📊</div>
+                <div className="empty-state-icon"><Icon name="PieChart" size={32} /></div>
                 <div className="empty-state-text">Add investments to see allocation</div>
               </div>
             )}
@@ -211,7 +258,7 @@ export default function Dashboard({ categories }) {
               </div>
             ) : (
               <div className="empty-state">
-                <div className="empty-state-icon">📈</div>
+                <div className="empty-state-icon"><Icon name="TrendingUp" size={32} /></div>
                 <div className="empty-state-text">Add monthly snapshots to see trends</div>
               </div>
             )}
@@ -220,13 +267,15 @@ export default function Dashboard({ categories }) {
 
         {/* Category Cards */}
         <div className="section-header">
-          <div className="section-title">📂 Categories</div>
+          <div className="section-title"><Icon name="Folder" size={16} style={{display: 'inline', verticalAlign: 'middle', marginRight: 8}}/> Categories</div>
         </div>
         <div className="grid-4 mb-24">
           {data.categories.map((cat, i) => (
             <div key={cat.id} className={`category-card animate-in stagger-${Math.min(i + 1, 6)}`} onClick={() => goTo(cat)}>
-              <div className="category-card-icon">{cat.icon}</div>
-              <div className="category-card-name">{cat.name}</div>
+              <div style={{ display: 'flex', alignItems: 'center', gap: '10px', marginBottom: '12px' }}>
+                <div className="category-card-icon" style={{ margin: 0, fontSize: '20px' }}><Icon name={cat.icon} size={20} color={getIconColor(cat.name)} /></div>
+                <div className="category-card-name" style={{ margin: 0 }}>{cat.name}</div>
+              </div>
               <div className="category-card-value">
                 {cat.category_type === 'investment' && formatCurrency(cat.total_current)}
                 {cat.category_type === 'insurance' && formatCurrency(cat.total_coverage)}

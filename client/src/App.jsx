@@ -5,6 +5,7 @@ import Dashboard from './pages/Dashboard';
 import CategoryPage from './pages/CategoryPage';
 import CreditCardsPage from './pages/CreditCardsPage';
 import SettingsPage from './pages/SettingsPage';
+import Icon from './components/Icon';
 import './index.css';
 
 // ─── THEME CONTEXT ───────────────────────────────────────────
@@ -136,7 +137,9 @@ function LoginPage() {
     <div className="login-page">
       <div className="login-card animate-in">
         <div className="login-logo">
-          <div className="login-logo-icon">₩</div>
+          <div className="login-logo-icon">
+            <Icon name="Wallet" size={24} color="#10B981" />
+          </div>
           <div className="login-logo-text">WealthPulse</div>
           <div className="login-logo-sub">Personal Finance Tracker</div>
         </div>
@@ -179,23 +182,42 @@ function Sidebar({ categories }) {
   const investmentCats = categories.filter(c => c.category_type === 'investment');
   const otherCats = categories.filter(c => c.category_type !== 'investment');
 
+  const getIconColor = (name) => {
+    const map = {
+      'Stocks': '#06b6d4',
+      'ETFs': '#f59e0b',
+      'Mutual Funds': '#10b981',
+      'REITs': '#8b5cf6',
+      'US Stocks': '#4f46e5',
+      'Unlisted Stocks': '#eab308',
+      'Credit Cards': '#3b82f6',
+      'Term Insurance': '#3b82f6',
+      'Life Insurance': '#ec4899',
+    };
+    return map[name] || 'currentColor';
+  };
+
   return (
     <div className="sidebar">
       <div className="sidebar-brand">
-        <div className="sidebar-brand-icon">₩</div>
-        <div className="sidebar-brand-text">WealthPulse</div>
+        <div className="sidebar-brand-icon">
+          ₩
+        </div>
+        <div className="sidebar-brand-text">
+          <span className="sidebar-brand-prefix">Wealth</span><span className="sidebar-brand-suffix">Pulse</span>
+        </div>
       </div>
 
       <nav className="sidebar-nav">
         <NavLink to="/" end className={({ isActive }) => `sidebar-link ${isActive ? 'active' : ''}`}>
-          <span className="sidebar-link-icon">🏠</span>
+          <span className="sidebar-link-icon"><Icon name="LayoutDashboard" size={18} color="#10b981" /></span>
           <span className="sidebar-link-text">Dashboard</span>
         </NavLink>
 
         <div className="sidebar-section-label">Investments</div>
         {investmentCats.map(cat => (
           <NavLink key={cat.id} to={`/category/${cat.slug}`} className={({ isActive }) => `sidebar-link ${isActive ? 'active' : ''}`}>
-            <span className="sidebar-link-icon">{cat.icon}</span>
+            <span className="sidebar-link-icon"><Icon name={cat.icon} size={18} color={getIconColor(cat.name)} /></span>
             <span className="sidebar-link-text">{cat.name}</span>
           </NavLink>
         ))}
@@ -205,7 +227,7 @@ function Sidebar({ categories }) {
           const path = cat.category_type === 'credit_card' ? `/credit-cards/${cat.slug}` : `/category/${cat.slug}`;
           return (
             <NavLink key={cat.id} to={path} className={({ isActive }) => `sidebar-link ${isActive ? 'active' : ''}`}>
-              <span className="sidebar-link-icon">{cat.icon}</span>
+              <span className="sidebar-link-icon"><Icon name={cat.icon} size={18} color={getIconColor(cat.name)} /></span>
               <span className="sidebar-link-text">{cat.name}</span>
             </NavLink>
           );
@@ -213,11 +235,11 @@ function Sidebar({ categories }) {
 
         <div className="sidebar-section-label">System</div>
         <NavLink to="/settings" className={({ isActive }) => `sidebar-link ${isActive ? 'active' : ''}`}>
-          <span className="sidebar-link-icon">⚙️</span>
+          <span className="sidebar-link-icon"><Icon name="Settings" size={18} /></span>
           <span className="sidebar-link-text">Settings</span>
         </NavLink>
         <a className="sidebar-link" onClick={() => api.exportExcel()} style={{ cursor: 'pointer' }}>
-          <span className="sidebar-link-icon">⬇️</span>
+          <span className="sidebar-link-icon"><Icon name="Download" size={18} /></span>
           <span className="sidebar-link-text">Export All</span>
         </a>
       </nav>

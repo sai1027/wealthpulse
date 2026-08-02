@@ -3,6 +3,7 @@ import { useParams } from 'react-router-dom';
 import { api, formatCurrency, formatCurrencyFull, formatPercent, getCurrentMonth } from '../api';
 import { Chart as ChartJS, CategoryScale, LinearScale, PointElement, LineElement, Filler, Tooltip, Legend, BarElement } from 'chart.js';
 import { Line, Bar } from 'react-chartjs-2';
+import Icon from '../components/Icon';
 
 ChartJS.register(CategoryScale, LinearScale, PointElement, LineElement, Filler, Tooltip, Legend, BarElement);
 
@@ -114,7 +115,7 @@ export default function CategoryPage({ categories }) {
     <>
       <div className="page-header">
         <div className="page-header-left">
-          <div className="page-title"><span className="page-title-icon">{category.icon}</span> {category.name}</div>
+          <div className="page-title"><span className="page-title-icon"><Icon name={category.icon} size={24} /></span> {category.name}</div>
           <div className="page-subtitle">{items.length} item{items.length !== 1 ? 's' : ''}</div>
         </div>
         <div className="page-header-actions">
@@ -127,43 +128,78 @@ export default function CategoryPage({ categories }) {
         {/* Stats Row */}
         {isInvestment && (
           <div className="grid-4 mb-24 animate-in">
-            <div className="stat-card">
-              <div className="stat-card-label">Portfolio Value</div>
-              <div className="stat-card-value">{formatCurrency(totalCurrent)}</div>
-            </div>
-            <div className="stat-card">
-              <div className="stat-card-label">Invested</div>
-              <div className="stat-card-value">{formatCurrency(totalInvested)}</div>
-            </div>
-            <div className="stat-card">
-              <div className="stat-card-label">Returns</div>
-              <div className="stat-card-value" style={{ background: totalReturns >= 0 ? 'var(--gradient-green)' : 'var(--gradient-red)', WebkitBackgroundClip: 'text', WebkitTextFillColor: 'transparent', backgroundClip: 'text' }}>
-                {formatPercent(returnsPercent)}
+            <div className="stat-card" style={{ display: 'flex', alignItems: 'center', gap: '16px' }}>
+              <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', width: '48px', height: '48px', borderRadius: '50%', background: 'rgba(234, 179, 8, 0.1)', color: '#eab308', flexShrink: 0 }}>
+                <Icon name="Wallet" size={24} />
               </div>
-              <div className={`stat-card-sub ${totalReturns >= 0 ? 'returns-positive' : 'returns-negative'}`}>
-                {totalReturns >= 0 ? '↑' : '↓'} {formatCurrency(Math.abs(totalReturns))}
+              <div>
+                <div className="stat-card-label">Portfolio Value</div>
+                <div className="stat-card-value" style={{ color: '#ffffff' }}>{formatCurrency(totalCurrent)}</div>
               </div>
             </div>
-            <div className="stat-card">
-              <div className="stat-card-label">Holdings</div>
-              <div className="stat-card-value">{items.length}</div>
+            <div className="stat-card" style={{ display: 'flex', alignItems: 'center', gap: '16px' }}>
+              <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', width: '48px', height: '48px', borderRadius: '50%', background: 'rgba(139, 92, 246, 0.1)', color: '#8b5cf6', flexShrink: 0 }}>
+                <Icon name="PieChart" size={24} />
+              </div>
+              <div>
+                <div className="stat-card-label">Invested</div>
+                <div className="stat-card-value" style={{ color: '#4F46E5' }}>{formatCurrency(totalInvested)}</div>
+              </div>
+            </div>
+            <div className="stat-card" style={{ display: 'flex', alignItems: 'center', gap: '16px' }}>
+              <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', width: '48px', height: '48px', borderRadius: '50%', background: 'rgba(16, 185, 129, 0.1)', color: '#10b981', flexShrink: 0 }}>
+                <Icon name="TrendingUp" size={24} />
+              </div>
+              <div>
+                <div className="stat-card-label">Returns</div>
+                <div className="stat-card-value" style={{ color: totalReturns >= 0 ? '#10b981' : '#ef4444' }}>
+                  {formatPercent(returnsPercent)}
+                </div>
+                <div className={`stat-card-sub ${totalReturns >= 0 ? 'returns-positive' : 'returns-negative'}`}>
+                  <Icon name={totalReturns >= 0 ? "ArrowUpRight" : "ArrowDownRight"} size={14} style={{display: 'inline', verticalAlign: 'middle'}}/> {formatCurrency(Math.abs(totalReturns))}
+                </div>
+              </div>
+            </div>
+            <div className="stat-card" style={{ display: 'flex', alignItems: 'center', gap: '16px' }}>
+              <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', width: '48px', height: '48px', borderRadius: '50%', background: 'rgba(59, 130, 246, 0.1)', color: '#3b82f6', flexShrink: 0 }}>
+                <Icon name="Hash" size={24} />
+              </div>
+              <div>
+                <div className="stat-card-label">Holdings</div>
+                <div className="stat-card-value">{items.length}</div>
+              </div>
             </div>
           </div>
         )}
 
         {isInsurance && (
           <div className="grid-3 mb-24 animate-in">
-            <div className="stat-card">
-              <div className="stat-card-label">Total Coverage</div>
-              <div className="stat-card-value">{formatCurrency(totalCoverage)}</div>
+            <div className="stat-card" style={{ display: 'flex', alignItems: 'center', gap: '16px' }}>
+              <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', width: '48px', height: '48px', borderRadius: '50%', background: 'rgba(234, 179, 8, 0.1)', color: '#eab308', flexShrink: 0 }}>
+                <Icon name="ShieldCheck" size={24} />
+              </div>
+              <div>
+                <div className="stat-card-label">Total Coverage</div>
+                <div className="stat-card-value">{formatCurrency(totalCoverage)}</div>
+              </div>
             </div>
-            <div className="stat-card">
-              <div className="stat-card-label">Annual Premium</div>
-              <div className="stat-card-value">{formatCurrency(totalPremium)}</div>
+            <div className="stat-card" style={{ display: 'flex', alignItems: 'center', gap: '16px' }}>
+              <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', width: '48px', height: '48px', borderRadius: '50%', background: 'rgba(16, 185, 129, 0.1)', color: '#10b981', flexShrink: 0 }}>
+                <Icon name="Receipt" size={24} />
+              </div>
+              <div>
+                <div className="stat-card-label">Annual Premium</div>
+                <div className="stat-card-value">{formatCurrency(totalPremium)}</div>
+              </div>
             </div>
-            <div className="stat-card">
-              <div className="stat-card-label">Policies</div>
-              <div className="stat-card-value">{items.length}</div>
+            <div className="stat-card" style={{ display: 'flex', alignItems: 'center', gap: '16px' }}>
+              <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', width: '48px', height: '48px', borderRadius: '50%', background: 'rgba(59, 130, 246, 0.1)', color: '#3b82f6', flexShrink: 0 }}>
+                <Icon name="Hash" size={24} />
+              </div>
+              <div>
+                <div className="stat-card-label">Active Policies</div>
+                <div className="stat-card-value">{items.length}</div>
+              </div>
             </div>
           </div>
         )}
@@ -237,20 +273,20 @@ export default function CategoryPage({ categories }) {
                       )}
                       <td>
                         <div className="flex gap-8">
-                          <button className="btn btn-ghost btn-sm" onClick={() => { setEditingItem(item); setShowModal(true); }}>✏️</button>
+                          <button className="btn btn-ghost btn-sm" onClick={() => { setEditingItem(item); setShowModal(true); }}><Icon name="Pencil" size={16} /></button>
                           {isInvestment && (
                             <button className="btn btn-ghost btn-sm" onClick={async () => {
                               const snaps = await api.getSnapshots(item.id);
                               setSnapshots(snaps);
                               setShowSnapshotModal(item);
-                            }}>📊</button>
+                            }}><Icon name="LineChart" size={16} /></button>
                           )}
                           <button className="btn btn-ghost btn-sm" onClick={async () => {
                             if (confirm(`Delete "${item.name}"?`)) {
                               await api.deleteItem(item.id);
                               loadData();
                             }
-                          }}>🗑</button>
+                          }}><Icon name="Trash2" size={16} /></button>
                         </div>
                       </td>
                     </tr>
@@ -262,7 +298,7 @@ export default function CategoryPage({ categories }) {
         ) : (
           <div className="card">
             <div className="empty-state">
-              <div className="empty-state-icon">{category.icon}</div>
+              <div className="empty-state-icon"><Icon name={category.icon} size={32} /></div>
               <div className="empty-state-title">No {category.name.toLowerCase()} added yet</div>
               <div className="empty-state-text">Click the button above to add your first entry</div>
               <button className="btn btn-primary" onClick={() => { setEditingItem(null); setShowModal(true); }}>+ Add {category.name.replace(/s$/, '')}</button>
