@@ -188,7 +188,7 @@ export default function Dashboard({ categories }) {
       </div>
       <div className="page-body">
         {/* Summary Stats */}
-        <div className="grid-4 mb-24 animate-in">
+        <div className="dashboard-summary-row mb-24 animate-in">
           <div className="stat-card" style={{ display: 'flex', alignItems: 'center', gap: '16px' }}>
             <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', width: '48px', height: '48px', borderRadius: '50%', background: 'rgba(234, 179, 8, 0.1)', color: '#eab308', flexShrink: 0 }}>
               <Icon name="Wallet" size={24} />
@@ -196,12 +196,15 @@ export default function Dashboard({ categories }) {
             <div>
               <div className="stat-card-label">Net Worth</div>
               <div className="stat-card-value" style={{ color: '#ffffff' }}>{formatCurrency(netWorth)}</div>
-              <div className="stat-card-sub">Investments + Bank Balance</div>
+              <div className="stat-card-sub">Entire Wealth</div>
             </div>
           </div>
+          
+          <div className="summary-symbol" style={{ color: textColor }}>=</div>
+
           <div className="stat-card" style={{ display: 'flex', alignItems: 'center', gap: '16px' }}>
             <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', width: '48px', height: '48px', borderRadius: '50%', background: 'rgba(139, 92, 246, 0.1)', color: '#8b5cf6', flexShrink: 0 }}>
-              <Icon name="PieChart" size={24} />
+              <Icon name="HandCoins" size={24} />
             </div>
             <div>
               <div className="stat-card-label">Invested</div>
@@ -209,6 +212,9 @@ export default function Dashboard({ categories }) {
               <div className="stat-card-sub">Across {investmentCats.reduce((s, c) => s + c.item_count, 0)} holdings</div>
             </div>
           </div>
+
+          <div className="summary-symbol" style={{ color: textColor }}>{totalReturns >= 0 ? '+' : '-'}</div>
+
           <div className="stat-card" style={{ display: 'flex', alignItems: 'center', gap: '16px' }}>
             <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', width: '48px', height: '48px', borderRadius: '50%', background: 'rgba(16, 185, 129, 0.1)', color: '#10b981', flexShrink: 0 }}>
               <Icon name="TrendingUp" size={24} />
@@ -223,6 +229,9 @@ export default function Dashboard({ categories }) {
               </div>
             </div>
           </div>
+
+          <div className="summary-symbol" style={{ color: textColor }}>+</div>
+
           <div className="stat-card" style={{ display: 'flex', alignItems: 'center', gap: '16px' }}>
             <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', width: '48px', height: '48px', borderRadius: '50%', background: 'rgba(156, 163, 175, 0.1)', color: '#9ca3af', flexShrink: 0 }}>
               <Icon name="Landmark" size={24} />

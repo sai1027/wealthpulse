@@ -577,6 +577,7 @@ function recordAutoSnapshot(itemId, categoryId, values) {
 // ─── START SERVER ────────────────────────────────────────────
 async function start() {
   await initDB();
+  runStmt("UPDATE categories SET icon = 'ChartPie' WHERE name = 'Mutual Funds'");
   app.listen(PORT, () => {
     console.log(`🚀 WealthPulse API running at http://localhost:${PORT}`);
   });

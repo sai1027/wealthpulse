@@ -1368,3 +1368,38 @@ select.input {
 .view-switcher-btn:hover:not(.active) {
   color: var(--text-primary);
 }
+
+/* ─── DASHBOARD SUMMARY ROW ───────────────────────────────── */
+.dashboard-summary-row {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+}
+.dashboard-summary-row > .stat-card {
+  flex: 1;
+}
+.summary-symbol {
+  font-size: 24px;
+  font-weight: 600;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  user-select: none;
+}
+
+@media (max-width: 992px) {
+  .dashboard-summary-row {
+    flex-wrap: wrap;
+  }
+  .dashboard-summary-row > .stat-card {
+    flex: 1 1 calc(50% - 24px);
+  }
+  .summary-symbol {
+    display: none;
+  }
+}
+@media (max-width: 576px) {
+  .dashboard-summary-row > .stat-card {
+    flex: 1 1 100%;
+  }
+}
