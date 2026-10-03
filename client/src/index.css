@@ -1,7 +1,8 @@
 @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap');
 
 /* ─── DESIGN TOKENS ──────────────────────────────────────── */
-:root {
+:root, html {
+  color-scheme: light dark;
   /* LIGHT MODE (DEFAULT) - iOS Aesthetic */
   --bg-base: #f2f2f7;
   --bg-surface: rgba(255, 255, 255, 0.7);
@@ -75,7 +76,15 @@
   --header-height: 64px;
 }
 
+html[data-theme='light'],
+:root[data-theme='light'] {
+  color-scheme: light !important;
+}
+
+html[data-theme='dark'],
+:root[data-theme='dark'],
 [data-theme='dark'] {
+  color-scheme: dark !important;
   /* DARK MODE - Modern Neutral Aesthetic */
   --bg-base: #0b0d10;
   --bg-surface: rgba(21, 26, 33, 0.65);
@@ -597,6 +606,42 @@ a:hover { color: var(--primary); }
 
 .input::placeholder {
   color: var(--text-muted);
+}
+
+.input[type="date"],
+.input[type="month"],
+.input[type="time"],
+.input[type="datetime-local"] {
+  cursor: pointer;
+}
+
+[data-theme='dark'] .input,
+[data-theme='dark'] input,
+[data-theme='dark'] select,
+[data-theme='dark'] textarea,
+[data-theme='dark'] .input[type="date"],
+[data-theme='dark'] .input[type="month"],
+[data-theme='dark'] .input[type="time"],
+[data-theme='dark'] .input[type="datetime-local"] {
+  color-scheme: dark !important;
+}
+
+[data-theme='light'] .input,
+[data-theme='light'] input,
+[data-theme='light'] select,
+[data-theme='light'] textarea {
+  color-scheme: light !important;
+}
+
+.input::-webkit-calendar-picker-indicator {
+  cursor: pointer;
+  border-radius: var(--radius-sm);
+  opacity: 0.85;
+  transition: opacity var(--transition-fast);
+}
+
+.input::-webkit-calendar-picker-indicator:hover {
+  opacity: 1;
 }
 
 select.input {

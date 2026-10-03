@@ -4,6 +4,7 @@ import { api, formatCurrency, formatCurrencyFull, formatPercent, getCurrentMonth
 import { Chart as ChartJS, CategoryScale, LinearScale, PointElement, LineElement, Filler, Tooltip, Legend, BarElement } from 'chart.js';
 import { Line, Bar } from 'react-chartjs-2';
 import Icon from '../components/Icon';
+import { useTheme } from '../App';
 
 ChartJS.register(CategoryScale, LinearScale, PointElement, LineElement, Filler, Tooltip, Legend, BarElement);
 
@@ -454,6 +455,7 @@ function ItemModal({ category, fields, item, onClose, onSave }) {
 
 // ─── SNAPSHOT MODAL ──────────────────────────────────────────
 function SnapshotModal({ item, snapshots, onClose, onSave }) {
+  const { theme } = useTheme();
   const [month, setMonth] = useState(getCurrentMonth());
   const [investedValue, setInvestedValue] = useState('');
   const [currentValue, setCurrentValue] = useState('');
@@ -508,7 +510,13 @@ function SnapshotModal({ item, snapshots, onClose, onSave }) {
             <div className="grid-3 gap-12">
               <div className="input-group">
                 <label className="input-label">Month</label>
-                <input className="input" type="month" value={month} onChange={e => setMonth(e.target.value)} />
+                <input
+                  className="input"
+                  type="month"
+                  value={month}
+                  onChange={e => setMonth(e.target.value)}
+                  style={{ colorScheme: theme === 'dark' ? 'dark' : 'light' }}
+                />
               </div>
               <div className="input-group">
                 <label className="input-label">Invested (₹)</label>

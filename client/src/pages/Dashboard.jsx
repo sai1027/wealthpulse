@@ -86,7 +86,15 @@ export default function Dashboard({ categories }) {
     plugins: {
       legend: {
         position: 'bottom',
-        labels: { color: textColor, font: { family: 'Inter', size: 12 }, padding: 16, usePointStyle: true, pointStyleWidth: 8 }
+        labels: {
+          color: textColor,
+          font: { family: 'Inter', size: 12 },
+          padding: 16,
+          usePointStyle: true,
+          pointStyle: 'rect',
+          boxWidth: 10,
+          boxHeight: 10
+        }
       },
       tooltip: {
         backgroundColor: tooltipBg,
