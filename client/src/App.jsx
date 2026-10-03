@@ -137,10 +137,10 @@ function LoginPage() {
     <div className="login-page">
       <div className="login-card animate-in">
         <div className="login-logo">
-          <div className="login-logo-icon">
-            <Icon name="Wallet" size={24} color="#10B981" />
+          <div className="login-logo-icon">₩</div>
+          <div className="login-logo-text">
+            <span className="sidebar-brand-prefix">Wealth</span><span className="sidebar-brand-suffix">Pulse</span>
           </div>
-          <div className="login-logo-text">WealthPulse</div>
           <div className="login-logo-sub">Personal Finance Tracker</div>
         </div>
         <form className="login-form" onSubmit={handleSubmit}>
