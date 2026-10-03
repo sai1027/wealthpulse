@@ -1403,3 +1403,31 @@ select.input {
     flex: 1 1 100%;
   }
 }
+
+/* ─── SENSITIVE FIELD (mask/reveal toggle) ──────────────────── */
+.sensitive-field {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.sensitive-field-value {
+  font-family: monospace;
+  letter-spacing: 0.05em;
+}
+
+.sensitive-field-toggle {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  color: var(--text-muted);
+  transition: color var(--transition-fast);
+  padding: 2px;
+  border-radius: var(--radius-sm);
+}
+
+.sensitive-field-toggle:hover {
+  color: var(--primary);
+  background: rgba(108, 92, 231, 0.1);
+}

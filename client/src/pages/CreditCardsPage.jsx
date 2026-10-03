@@ -1,15 +1,18 @@
 import { useState, useEffect } from 'react';
 import { useParams } from 'react-router-dom';
 import { api, formatCurrencyFull } from '../api';
+import Icon from '../components/Icon';
 
 export default function CreditCardsPage({ categories }) {
   const { slug } = useParams();
   const [items, setItems] = useState([]);
   const [fields, setFields] = useState([]);
-  const [view, setView] = useState('matrix');
+  const [view, setView] = useState('compare');
   const [showModal, setShowModal] = useState(false);
   const [editingItem, setEditingItem] = useState(null);
   const [showFieldManager, setShowFieldManager] = useState(false);
+  // Track revealed card numbers per item: { [itemId]: boolean }
+  const [revealedCards, setRevealedCards] = useState({});
 
   const category = categories.find(c => c.slug === slug);
 
@@ -27,8 +30,44 @@ export default function CreditCardsPage({ categories }) {
     setItems(itemsData);
   };
 
-  // Fields to show in matrix (visible_in_summary ones)
+  const toggleCardReveal = (itemId) => {
+    setRevealedCards(prev => ({ ...prev, [itemId]: !prev[itemId] }));
+  };
+
+  // Detect which field is the "card number" field
+  const cardNumberField = fields.find(f =>
+    f.field_name === 'card_number' || f.field_name === 'card_no' || f.field_label?.toLowerCase().includes('card number')
+  );
+
+  // Fields to show in compare (visible_in_summary ones)
   const matrixFields = fields.filter(f => f.is_visible_in_summary);
+
+  /** Render a field value, masking card numbers with eye toggle */
+  const renderFieldValue = (item, field) => {
+    const val = item.values?.[field.field_name]?.value || '';
+    if (!val) return <span style={{ color: 'var(--text-muted)' }}>—</span>;
+
+    const isCardNum = cardNumberField && field.id === cardNumberField.id;
+    if (isCardNum) {
+      const revealed = revealedCards[item.id];
+      const masked = `•••• •••• •••• ${val.replace(/\s/g, '').slice(-4)}`;
+      return (
+        <span className="sensitive-field">
+          <span className="sensitive-field-value">{revealed ? val : masked}</span>
+          <span
+            className="sensitive-field-toggle"
+            onClick={(e) => { e.stopPropagation(); toggleCardReveal(item.id); }}
+            title={revealed ? 'Hide card number' : 'Show card number'}
+          >
+            <Icon name={revealed ? 'EyeOff' : 'Eye'} size={14} />
+          </span>
+        </span>
+      );
+    }
+
+    if (field.field_type === 'currency' && val) return formatCurrencyFull(val);
+    return val;
+  };
 
   if (!category) {
     return (
@@ -50,8 +89,20 @@ export default function CreditCardsPage({ categories }) {
         </div>
         <div className="page-header-actions">
           <div className="view-switcher">
-            <button className={`view-switcher-btn ${view === 'matrix' ? 'active' : ''}`} onClick={() => setView('matrix')}>📋 Matrix</button>
-            <button className={`view-switcher-btn ${view === 'cards' ? 'active' : ''}`} onClick={() => setView('cards')}>📇 Cards</button>
+            <button
+              className={`view-switcher-btn ${view === 'compare' ? 'active' : ''}`}
+              onClick={() => setView('compare')}
+            >
+              <Icon name="Columns2" size={13} style={{ marginRight: 4, verticalAlign: 'middle' }} />
+              Compare
+            </button>
+            <button
+              className={`view-switcher-btn ${view === 'cards' ? 'active' : ''}`}
+              onClick={() => setView('cards')}
+            >
+              <Icon name="LayoutGrid" size={13} style={{ marginRight: 4, verticalAlign: 'middle' }} />
+              Cards
+            </button>
           </div>
           <button className="btn btn-ghost btn-sm" onClick={() => setShowFieldManager(true)}>⚙ Fields</button>
           <button className="btn btn-primary" onClick={() => { setEditingItem(null); setShowModal(true); }}>+ Add Card</button>
@@ -68,8 +119,8 @@ export default function CreditCardsPage({ categories }) {
               <button className="btn btn-primary" onClick={() => { setEditingItem(null); setShowModal(true); }}>+ Add Card</button>
             </div>
           </div>
-        ) : view === 'matrix' ? (
-          /* MATRIX VIEW */
+        ) : view === 'compare' ? (
+          /* COMPARE VIEW (formerly Matrix) */
           <div className="matrix-container animate-in">
             <table className="matrix-table">
               <thead>
@@ -81,10 +132,24 @@ export default function CreditCardsPage({ categories }) {
                         <span style={{ fontSize: 24 }}>💳</span>
                         <span>{item.name}</span>
                         <div style={{ display: 'flex', gap: 4 }}>
-                          <button className="btn btn-ghost btn-sm" style={{ padding: '2px 6px', fontSize: 11 }} onClick={() => { setEditingItem(item); setShowModal(true); }}>✏️</button>
-                          <button className="btn btn-ghost btn-sm" style={{ padding: '2px 6px', fontSize: 11 }} onClick={async () => {
-                            if (confirm(`Delete "${item.name}"?`)) { await api.deleteItem(item.id); loadData(); }
-                          }}>🗑</button>
+                          <button
+                            className="btn btn-ghost btn-sm"
+                            style={{ padding: '2px 6px', fontSize: 11 }}
+                            title="Edit"
+                            onClick={() => { setEditingItem(item); setShowModal(true); }}
+                          >
+                            <Icon name="Pencil" size={13} />
+                          </button>
+                          <button
+                            className="btn btn-ghost btn-sm"
+                            style={{ padding: '2px 6px', fontSize: 11 }}
+                            title="Delete"
+                            onClick={async () => {
+                              if (confirm(`Delete "${item.name}"?`)) { await api.deleteItem(item.id); loadData(); }
+                            }}
+                          >
+                            <Icon name="Trash2" size={13} />
+                          </button>
                         </div>
                       </div>
                     </th>
@@ -95,14 +160,9 @@ export default function CreditCardsPage({ categories }) {
                 {matrixFields.map(field => (
                   <tr key={field.id}>
                     <td>{field.field_label}</td>
-                    {items.map(item => {
-                      const val = item.values?.[field.field_name]?.value || '';
-                      let display = val || <span style={{ color: 'var(--text-muted)' }}>—</span>;
-                      if (field.field_type === 'currency' && val) {
-                        display = formatCurrencyFull(val);
-                      }
-                      return <td key={item.id}>{display}</td>;
-                    })}
+                    {items.map(item => (
+                      <td key={item.id}>{renderFieldValue(item, field)}</td>
+                    ))}
                   </tr>
                 ))}
               </tbody>
@@ -120,21 +180,49 @@ export default function CreditCardsPage({ categories }) {
                     <div style={{ fontSize: 12, color: 'var(--text-muted)' }}>{item.values?.bank?.value || ''}</div>
                   </div>
                   <div className="flex gap-8">
-                    <button className="btn btn-ghost btn-sm" onClick={() => { setEditingItem(item); setShowModal(true); }}>✏️</button>
-                    <button className="btn btn-ghost btn-sm" onClick={async () => {
-                      if (confirm(`Delete "${item.name}"?`)) { await api.deleteItem(item.id); loadData(); }
-                    }}>🗑</button>
+                    <button
+                      className="btn btn-ghost btn-sm"
+                      title="Edit"
+                      onClick={() => { setEditingItem(item); setShowModal(true); }}
+                    >
+                      <Icon name="Pencil" size={15} />
+                    </button>
+                    <button
+                      className="btn btn-ghost btn-sm"
+                      title="Delete"
+                      onClick={async () => {
+                        if (confirm(`Delete "${item.name}"?`)) { await api.deleteItem(item.id); loadData(); }
+                      }}
+                    >
+                      <Icon name="Trash2" size={15} />
+                    </button>
                   </div>
                 </div>
                 <div style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
                   {matrixFields.slice(0, 10).map(field => {
                     const val = item.values?.[field.field_name]?.value || '';
                     if (!val) return null;
+                    const isCardNum = cardNumberField && field.id === cardNumberField.id;
                     return (
                       <div key={field.id} style={{ display: 'flex', justifyContent: 'space-between', padding: '4px 0', borderBottom: '1px solid var(--border)' }}>
                         <span style={{ fontSize: 12, color: 'var(--text-muted)' }}>{field.field_label}</span>
                         <span style={{ fontSize: 13, fontWeight: 500 }}>
-                          {field.field_type === 'currency' ? formatCurrencyFull(val) : val}
+                          {isCardNum ? (
+                            <span className="sensitive-field">
+                              <span className="sensitive-field-value">
+                                {revealedCards[item.id] ? val : `•••• •••• •••• ${val.replace(/\s/g, '').slice(-4)}`}
+                              </span>
+                              <span
+                                className="sensitive-field-toggle"
+                                onClick={() => toggleCardReveal(item.id)}
+                                title={revealedCards[item.id] ? 'Hide card number' : 'Show card number'}
+                              >
+                                <Icon name={revealedCards[item.id] ? 'EyeOff' : 'Eye'} size={14} />
+                              </span>
+                            </span>
+                          ) : (
+                            field.field_type === 'currency' ? formatCurrencyFull(val) : val
+                          )}
                         </span>
                       </div>
                     );
@@ -295,7 +383,9 @@ function FieldManagerModal({ category, fields, onClose, onSave }) {
               {f.is_sensitive ? <span className="badge badge-gold">Sensitive</span> : null}
               <button className="btn btn-ghost btn-sm" onClick={async () => {
                 if (confirm('Delete this field?')) { await api.deleteField(f.id); await onSave(); }
-              }} title="Delete">🗑</button>
+              }} title="Delete">
+                <Icon name="Trash2" size={14} />
+              </button>
             </div>
           ))}
           {showAddForm ? (

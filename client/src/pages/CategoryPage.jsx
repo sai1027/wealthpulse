@@ -17,6 +17,7 @@ export default function CategoryPage({ categories }) {
   const [snapshots, setSnapshots] = useState([]);
   const [showFieldManager, setShowFieldManager] = useState(false);
   const [revealedFields, setRevealedFields] = useState({});
+  const [detailItem, setDetailItem] = useState(null); // for "view all fields" modal
 
   const category = categories.find(c => c.slug === slug);
 
@@ -281,6 +282,15 @@ export default function CategoryPage({ categories }) {
                               setShowSnapshotModal(item);
                             }}><Icon name="LineChart" size={16} /></button>
                           )}
+                          {isBank && (
+                            <button
+                              className="btn btn-ghost btn-sm"
+                              title="View all fields"
+                              onClick={() => setDetailItem(item)}
+                            >
+                              <Icon name="List" size={16} />
+                            </button>
+                          )}
                           <button className="btn btn-ghost btn-sm" onClick={async () => {
                             if (confirm(`Delete "${item.name}"?`)) {
                               await api.deleteItem(item.id);
@@ -338,6 +348,16 @@ export default function CategoryPage({ categories }) {
           fields={fields}
           onClose={() => setShowFieldManager(false)}
           onSave={async () => { await loadData(); }}
+        />
+      )}
+
+      {/* Item Detail Modal (All Fields) */}
+      {detailItem && (
+        <ItemDetailsModal
+          item={detailItem}
+          fields={fields}
+          onClose={() => setDetailItem(null)}
+          onEdit={() => { setEditingItem(detailItem); setDetailItem(null); setShowModal(true); }}
         />
       )}
     </>
@@ -615,6 +635,80 @@ function FieldManagerModal({ category, fields, onClose, onSave }) {
           ) : (
             <button className="btn btn-secondary w-full mt-16" onClick={() => setShowAddForm(true)}>+ Add New Field</button>
           )}
+        </div>
+      </div>
+    </div>
+  );
+}
+
+// ─── ITEM DETAILS MODAL (All Fields) ─────────────────────────
+function ItemDetailsModal({ item, fields, onClose, onEdit }) {
+  const [revealedFields, setRevealedFields] = useState({});
+
+  const toggleReveal = (fieldId) => {
+    setRevealedFields(prev => ({ ...prev, [fieldId]: !prev[fieldId] }));
+  };
+
+  return (
+    <div className="modal-overlay" onClick={onClose}>
+      <div className="modal" style={{ maxWidth: 560 }} onClick={e => e.stopPropagation()}>
+        <div className="modal-header">
+          <div className="modal-title">
+            <Icon name="List" size={16} style={{ marginRight: 6, verticalAlign: 'middle' }} />
+            {item.name} — All Fields
+          </div>
+          <button className="btn btn-ghost btn-icon" onClick={onClose}>✕</button>
+        </div>
+        <div className="modal-body" style={{ maxHeight: '65vh', overflowY: 'auto' }}>
+          {fields.map(f => {
+            const val = item.values?.[f.field_name]?.value || '';
+            let display;
+            if (!val) {
+              display = <span style={{ color: 'var(--text-muted)' }}>—</span>;
+            } else if (f.is_sensitive) {
+              const revealed = revealedFields[f.id];
+              display = (
+                <span className="sensitive-field">
+                  <span className="sensitive-field-value">{revealed ? val : '••••••••'}</span>
+                  <span
+                    className="sensitive-field-toggle"
+                    onClick={(e) => { e.stopPropagation(); toggleReveal(f.id); }}
+                    title={revealed ? 'Hide' : 'Show'}
+                  >
+                    <Icon name={revealed ? 'EyeOff' : 'Eye'} size={14} />
+                  </span>
+                </span>
+              );
+            } else if (f.field_type === 'currency') {
+              display = formatCurrencyFull(val);
+            } else if (f.field_type === 'percent') {
+              display = `${val}%`;
+            } else {
+              display = val;
+            }
+            return (
+              <div
+                key={f.id}
+                style={{
+                  display: 'flex',
+                  justifyContent: 'space-between',
+                  alignItems: 'center',
+                  padding: '10px 0',
+                  borderBottom: '1px solid var(--border)',
+                }}
+              >
+                <span style={{ fontSize: 13, color: 'var(--text-muted)', minWidth: 160 }}>{f.field_label}</span>
+                <span style={{ fontSize: 13, fontWeight: 500, textAlign: 'right' }}>{display}</span>
+              </div>
+            );
+          })}
+        </div>
+        <div className="modal-footer">
+          <button className="btn btn-secondary" onClick={onClose}>Close</button>
+          <button className="btn btn-primary" onClick={onEdit}>
+            <Icon name="Pencil" size={14} style={{ marginRight: 4, verticalAlign: 'middle' }} />
+            Edit
+          </button>
         </div>
       </div>
     </div>
